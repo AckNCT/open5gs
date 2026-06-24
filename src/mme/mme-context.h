@@ -99,6 +99,8 @@ typedef struct mme_context_s {
 
     ogs_list_t      vlr_list;       /* VLR SGsAP Client List */
     ogs_list_t      esmlc_list;     /* E-SMLC SLs(LCS-AP) Client List */
+    const char      *sls_test_imsi; /* If set, send a test Location-Request on
+                                       SLs connect (Phase A has no SLg yet) */
     ogs_list_t      csmap_list;     /* TAI-LAI Map List */
     ogs_list_t      hssmap_list;    /* PLMN HSS Map List */
 

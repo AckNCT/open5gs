@@ -136,6 +136,14 @@ void lcs_ap_state_connected(ogs_fsm_t *s, mme_event_t *e)
     case OGS_FSM_ENTRY_SIG:
         ogs_info("[LCS-AP] SLs connected to E-SMLC [%s]",
                 ogs_sockaddr_to_string_static(esmlc->sa_list));
+        /* Phase A has no SLg trigger yet: if a test IMSI is configured,
+         * kick off a Location-Service-Request to exercise the SLs path. */
+        if (mme_self()->sls_test_imsi) {
+            ogs_info("[LCS-AP] Sending test Location-Service-Request "
+                    "for IMSI[%s]", mme_self()->sls_test_imsi);
+            lcs_ap_send_location_request(
+                    esmlc, mme_self()->sls_test_imsi, 1);
+        }
         break;
     case OGS_FSM_EXIT_SIG:
         break;

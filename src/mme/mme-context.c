@@ -2211,6 +2211,9 @@ int mme_context_parse_config(void)
                                 ogs_assert(esmlc);
                             } while (ogs_yaml_iter_type(&client_array) ==
                                     YAML_SEQUENCE_NODE);
+                        } else if (!strcmp(esmlc_key, "test_imsi")) {
+                            self.sls_test_imsi =
+                                ogs_yaml_iter_value(&esmlc_iter);
                         } else
                             ogs_warn("unknown key `%s`", esmlc_key);
                     }
