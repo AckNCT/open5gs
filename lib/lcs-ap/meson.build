@@ -23,6 +23,7 @@ liblcsap_sources = files('''
     ogs-lcs-ap.h
 
     ogs-lcs-ap.c
+    message.c
 '''.split())
 
 liblcsap_inc = include_directories('.')

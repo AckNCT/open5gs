@@ -24,6 +24,7 @@
 #include "mme-sm.h"
 
 #include "lcs-ap-path.h"
+#include "lcs-ap-build.h"
 
 int lcs_ap_open(void)
 {
@@ -89,4 +90,28 @@ int lcs_ap_send_to_esmlc(
             stream_no, ogs_sockaddr_to_string_static(esmlc->sa_list));
 
     return lcs_ap_send(sock, pkbuf, stream_no);
+}
+
+int lcs_ap_send_location_request(
+        mme_esmlc_t *esmlc, const char *imsi_bcd, uint32_t correlation_id)
+{
+    int rv;
+    ogs_pkbuf_t *pkbuf = NULL;
+
+    ogs_assert(esmlc);
+    ogs_assert(imsi_bcd);
+
+    ogs_info("[LCS-AP] Tx Location-Service-Request IMSI[%s] corr[0x%08x]",
+            imsi_bcd, correlation_id);
+
+    pkbuf = lcs_ap_build_location_request(imsi_bcd, correlation_id);
+    if (!pkbuf) {
+        ogs_error("lcs_ap_build_location_request() failed");
+        return OGS_ERROR;
+    }
+
+    rv = lcs_ap_send_to_esmlc(esmlc, pkbuf, esmlc->ostream_id);
+    ogs_expect(rv == OGS_OK);
+
+    return rv;
 }

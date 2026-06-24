@@ -17,34 +17,20 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-/* SLs interface (LCS-AP, TS 29.171): MME -> E-SMLC over SCTP/PPID 29. */
+#ifndef LCS_AP_BUILD_H
+#define LCS_AP_BUILD_H
 
-#ifndef LCS_AP_PATH_H
-#define LCS_AP_PATH_H
-
-#include "mme-context.h"
-#include "mme-event.h"
+#include "ogs-lcs-ap.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-#define lcs_ap_event_push mme_sctp_event_push
-
-int lcs_ap_open(void);
-void lcs_ap_close(void);
-
-ogs_sock_t *lcs_ap_client(mme_esmlc_t *esmlc);
-
-int lcs_ap_send(ogs_sock_t *sock, ogs_pkbuf_t *pkbuf, uint16_t stream_no);
-int lcs_ap_send_to_esmlc(
-        mme_esmlc_t *esmlc, ogs_pkbuf_t *pkbuf, uint16_t stream_no);
-
-int lcs_ap_send_location_request(
-        mme_esmlc_t *esmlc, const char *imsi_bcd, uint32_t correlation_id);
+ogs_pkbuf_t *lcs_ap_build_location_request(
+        const char *imsi_bcd, uint32_t correlation_id);
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif /* LCS_AP_PATH_H */
+#endif /* LCS_AP_BUILD_H */

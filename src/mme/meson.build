@@ -27,6 +27,8 @@ libmme_sources = files('''
     sgsap-conv.h
     sgsap-path.h
     lcs-ap-path.h
+    lcs-ap-build.h
+    lcs-ap-handler.h
     mme-fd-path.h
     mme-s6a-handler.h
     nas-security.h
@@ -64,6 +66,8 @@ libmme_sources = files('''
     lcs-ap-sm.c
     lcs-ap-sctp.c
     lcs-ap-path.c
+    lcs-ap-build.c
+    lcs-ap-handler.c
     mme-fd-path.c
     mme-s6a-handler.c
     nas-security.c

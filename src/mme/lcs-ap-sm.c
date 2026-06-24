@@ -25,6 +25,7 @@
 #include "mme-sm.h"
 
 #include "lcs-ap-path.h"
+#include "lcs-ap-handler.h"
 
 void lcs_ap_state_initial(ogs_fsm_t *s, mme_event_t *e)
 {
@@ -145,9 +146,7 @@ void lcs_ap_state_connected(ogs_fsm_t *s, mme_event_t *e)
     case MME_EVENT_LCS_AP_MESSAGE:
         pkbuf = e->pkbuf;
         ogs_assert(pkbuf);
-        /* TODO(increment 3b): decode and dispatch the LCS-AP PDU. */
-        ogs_info("[LCS-AP] Rx %d bytes from E-SMLC (decode in increment 3b)",
-                pkbuf->len);
+        lcs_ap_handle_message(esmlc, pkbuf);
         break;
     default:
         ogs_error("Unknown event %s", mme_event_get_name(e));
