@@ -30,6 +30,7 @@ libmme_sources = files('''
     lcs-ap-build.h
     lcs-ap-handler.h
     mme-fd-path.h
+    mme-slg-path.h
     mme-s6a-handler.h
     nas-security.h
     nas-path.h
@@ -69,6 +70,7 @@ libmme_sources = files('''
     lcs-ap-build.c
     lcs-ap-handler.c
     mme-fd-path.c
+    mme-slg-path.c
     mme-s6a-handler.c
     nas-security.c
     nas-path.c
@@ -100,6 +102,7 @@ libmme = static_library('mme',
                     liblcsap_dep,
                     libnas_eps_dep,
                     libdiameter_s6a_dep,
+                    libdiameter_slg_dep,
                     libgtp_dep,
                     libsbi_dep],
     install : false)
@@ -112,6 +115,7 @@ libmme_dep = declare_dependency(
                     liblcsap_dep,
                     libnas_eps_dep,
                     libdiameter_s6a_dep,
+                    libdiameter_slg_dep,
                     libsbi_dep,
                     libgtp_dep])
 

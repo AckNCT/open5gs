@@ -101,7 +101,7 @@ int ogs_dict_slg_entry(char *conffile)
         /* SLg-Location-Type AVP - 3GPP TS 29.172 #7.4.2 */
         {
             struct dict_object * type;
-            struct dict_type_data tdata = { AVP_TYPE_INTEGER32, "Enumerated(SLg-Location-Type)", NULL, NULL, NULL };
+            struct dict_type_data tdata = { AVP_TYPE_INTEGER32, "Enumerated(SLg-Location-Type)", NULL, NULL, NULL, NULL };
             struct dict_enumval_data t_0 = enumval_def_u32( 0, "CURRENT_LOCATION");
             struct dict_enumval_data t_1 = enumval_def_u32( 1, "CURRENT_OR_LAST_KNOWN_LOCATION");
             struct dict_enumval_data t_2 = enumval_def_u32( 2, "INITIAL_LOCATION");

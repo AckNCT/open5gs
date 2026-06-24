@@ -19,6 +19,7 @@
 
 #include "mme-event.h"
 #include "mme-fd-path.h"
+#include "mme-slg-path.h"
 
 /* handler for Cancel-Location-Request cb */
 static struct disp_hdl *hdl_s6a_clr = NULL;
@@ -2655,6 +2656,10 @@ int mme_fd_init(void)
     ret = fd_disp_app_support(ogs_diam_s6a_application, ogs_diam_vendor, 1, 0);
     ogs_assert(ret == 0);
 
+    /* SLg (TS 29.172): register the GMLC-facing Provide-Location front door. */
+    ret = mme_slg_init();
+    ogs_assert(ret == OGS_OK);
+
     ret = ogs_diam_start();
     ogs_assert(ret == 0);
 
@@ -2664,6 +2669,8 @@ int mme_fd_init(void)
 void mme_fd_final(void)
 {
     int ret;
+
+    mme_slg_final();
 
     ret = fd_sess_handler_destroy(&mme_s6a_reg, NULL);
     ogs_assert(ret == OGS_OK);
