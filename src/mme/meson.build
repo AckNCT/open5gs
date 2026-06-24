@@ -26,6 +26,7 @@ libmme_sources = files('''
     sgsap-handler.h
     sgsap-conv.h
     sgsap-path.h
+    lcs-ap-path.h
     mme-fd-path.h
     mme-s6a-handler.h
     nas-security.h
@@ -60,6 +61,9 @@ libmme_sources = files('''
     sgsap-conv.c
     sgsap-sctp.c
     sgsap-path.c
+    lcs-ap-sm.c
+    lcs-ap-sctp.c
+    lcs-ap-path.c
     mme-fd-path.c
     mme-s6a-handler.c
     nas-security.c
@@ -89,6 +93,7 @@ libmme = static_library('mme',
     dependencies : [libmetrics_dep,
                     libsctp_dep,
                     libs1ap_dep,
+                    liblcsap_dep,
                     libnas_eps_dep,
                     libdiameter_s6a_dep,
                     libgtp_dep,
@@ -100,6 +105,7 @@ libmme_dep = declare_dependency(
     dependencies : [libmetrics_dep,
                     libsctp_dep,
                     libs1ap_dep,
+                    liblcsap_dep,
                     libnas_eps_dep,
                     libdiameter_s6a_dep,
                     libsbi_dep,

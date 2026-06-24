@@ -97,6 +97,15 @@ const char *mme_event_get_name(mme_event_t *e)
     case MME_EVENT_SGSAP_LO_CONNREFUSED:
         return "MME_EVENT_SGSAP_LO_CONNREFUSED";
 
+    case MME_EVENT_LCS_AP_MESSAGE:
+        return "MME_EVENT_LCS_AP_MESSAGE";
+    case MME_EVENT_LCS_AP_TIMER:
+        return "MME_EVENT_LCS_AP_TIMER";
+    case MME_EVENT_LCS_AP_LO_SCTP_COMM_UP:
+        return "MME_EVENT_LCS_AP_LO_SCTP_COMM_UP";
+    case MME_EVENT_LCS_AP_LO_CONNREFUSED:
+        return "MME_EVENT_LCS_AP_LO_CONNREFUSED";
+
     case MME_EVENT_GN_MESSAGE:
         return "MME_EVENT_GN_MESSAGE";
     case MME_EVENT_GN_TIMER:

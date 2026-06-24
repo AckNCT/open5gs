@@ -52,6 +52,8 @@ static mme_timer_cfg_t g_mme_timer_cfg[MAX_NUM_OF_MME_TIMER] = {
 
     [MME_TIMER_SGS_CLI_CONN_TO_SRV] =
         { .have = true, .duration = ogs_time_from_sec(3) },
+    [MME_TIMER_LCS_AP_CLI_CONN_TO_SRV] =
+        { .have = true, .duration = ogs_time_from_sec(3) },
 
     [MME_TIMER_S1_HOLDING] =
         { .have = true, .duration = ogs_time_from_sec(30) },
@@ -96,6 +98,8 @@ const char *mme_timer_get_name(mme_timer_e id)
         return "MME_TIMER_IMPLICIT_DETACH";
     case MME_TIMER_SGS_CLI_CONN_TO_SRV:
         return "MME_TIMER_SGS_CLI_CONN_TO_SRV";
+    case MME_TIMER_LCS_AP_CLI_CONN_TO_SRV:
+        return "MME_TIMER_LCS_AP_CLI_CONN_TO_SRV";
     case MME_TIMER_S1_HOLDING:
         return "MME_TIMER_S1_HOLDING";
     case MME_TIMER_S11_HOLDING:
@@ -203,6 +207,23 @@ void mme_timer_sgs_cli_conn_to_srv(void *data)
     e = mme_event_new(MME_EVENT_SGSAP_TIMER);
     e->timer_id = MME_TIMER_SGS_CLI_CONN_TO_SRV;
     e->vlr = data;
+
+    rv = ogs_queue_push(ogs_app()->queue, e);
+    if (rv != OGS_OK) {
+        ogs_error("ogs_queue_push() failed:%d", (int)rv);
+        mme_event_free(e);
+    }
+}
+
+void mme_timer_lcs_ap_cli_conn_to_srv(void *data)
+{
+    int rv;
+    mme_event_t *e = NULL;
+    ogs_assert(data);
+
+    e = mme_event_new(MME_EVENT_LCS_AP_TIMER);
+    e->timer_id = MME_TIMER_LCS_AP_CLI_CONN_TO_SRV;
+    e->esmlc = data;
 
     rv = ogs_queue_push(ogs_app()->queue, e);
     if (rv != OGS_OK) {

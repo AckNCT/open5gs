@@ -83,6 +83,7 @@ void mme_state_operational(ogs_fsm_t *s, mme_event_t *e)
     ogs_gtp1_message_t gtp1_message;
 
     mme_vlr_t *vlr = NULL;
+    mme_esmlc_t *esmlc = NULL;
 
     ogs_assert(e);
     mme_sm_debug(e);
@@ -1031,6 +1032,71 @@ cleanup:
         ogs_assert(OGS_FSM_STATE(&vlr->sm));
 
         ogs_fsm_dispatch(&vlr->sm, e);
+        break;
+
+    case MME_EVENT_LCS_AP_LO_SCTP_COMM_UP:
+        sock = e->sock;
+        ogs_assert(sock);
+
+        max_num_of_ostreams = e->max_num_of_ostreams;
+
+        esmlc = mme_esmlc_find_by_sock(sock);
+        ogs_assert(esmlc);
+        ogs_assert(OGS_FSM_STATE(&esmlc->sm));
+
+        esmlc->max_num_of_ostreams =
+                ogs_min(max_num_of_ostreams, esmlc->max_num_of_ostreams);
+
+        ogs_debug("E-SMLC-SLs SCTP_COMM_UP %s Max Num of Outbound Streams[%d]",
+                ogs_sockaddr_to_string_static(esmlc->sa_list),
+                esmlc->max_num_of_ostreams);
+
+        e->esmlc = esmlc;
+        ogs_fsm_dispatch(&esmlc->sm, e);
+        break;
+
+    case MME_EVENT_LCS_AP_LO_CONNREFUSED:
+        sock = e->sock;
+        ogs_assert(sock);
+
+        esmlc = mme_esmlc_find_by_sock(sock);
+        ogs_assert(esmlc);
+        ogs_assert(OGS_FSM_STATE(&esmlc->sm));
+
+        if (OGS_FSM_CHECK(&esmlc->sm, lcs_ap_state_connected)) {
+            e->esmlc = esmlc;
+            ogs_fsm_dispatch(&esmlc->sm, e);
+
+            ogs_info("E-SMLC-SLs %s connection refused!!!",
+                    ogs_sockaddr_to_string_static(esmlc->sa_list));
+        } else {
+            ogs_warn("E-SMLC-SLs %s connection refused, Already Removed!",
+                    ogs_sockaddr_to_string_static(esmlc->sa_list));
+        }
+
+        break;
+    case MME_EVENT_LCS_AP_MESSAGE:
+        sock = e->sock;
+        ogs_assert(sock);
+        pkbuf = e->pkbuf;
+        ogs_assert(pkbuf);
+
+        esmlc = mme_esmlc_find_by_sock(sock);
+        ogs_assert(esmlc);
+        ogs_assert(OGS_FSM_STATE(&esmlc->sm));
+
+        e->esmlc = esmlc;
+        ogs_fsm_dispatch(&esmlc->sm, e);
+
+        ogs_pkbuf_free(pkbuf);
+        break;
+
+    case MME_EVENT_LCS_AP_TIMER:
+        esmlc = e->esmlc;
+        ogs_assert(esmlc);
+        ogs_assert(OGS_FSM_STATE(&esmlc->sm));
+
+        ogs_fsm_dispatch(&esmlc->sm, e);
         break;
 
     default:

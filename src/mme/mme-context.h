@@ -81,6 +81,7 @@ typedef struct mme_context_s {
 
     uint16_t        s1ap_port;      /* Default S1AP Port */
     uint16_t        sgsap_port;     /* Default SGsAP Port */
+    uint16_t        sls_port;       /* Default SLs (LCS-AP) Port */
 
     ogs_list_t      s1ap_list;      /* MME S1AP IPv4 Server List */
     ogs_list_t      s1ap_list6;     /* MME S1AP IPv6 Server List */
@@ -97,6 +98,7 @@ typedef struct mme_context_s {
     ogs_list_t      enb_list;       /* ENB S1AP Client List */
 
     ogs_list_t      vlr_list;       /* VLR SGsAP Client List */
+    ogs_list_t      esmlc_list;     /* E-SMLC SLs(LCS-AP) Client List */
     ogs_list_t      csmap_list;     /* TAI-LAI Map List */
     ogs_list_t      hssmap_list;    /* PLMN HSS Map List */
 
@@ -228,6 +230,24 @@ typedef struct mme_vlr_s {
     ogs_sockopt_t   *option;    /* VLR SGsAP Socket Option */
     ogs_poll_t      *poll;      /* VLR SGsAP Poll */
 } mme_vlr_t;
+
+typedef struct mme_esmlc_s {
+    ogs_lnode_t     lnode;
+
+    ogs_fsm_t       sm;          /* A state machine */
+
+    ogs_timer_t     *t_conn;     /* client timer to connect to server */
+
+    int             max_num_of_ostreams;/* SCTP Max num of outbound streams */
+    uint16_t        ostream_id;     /* esmlc_ostream_id generator */
+
+    ogs_sockaddr_t  *sa_list;   /* E-SMLC SLs(LCS-AP) Socket Address List */
+    ogs_sockaddr_t  *local_sa_list; /* E-SMLC SLs Socket Local Address List */
+
+    ogs_sock_t      *sock;      /* E-SMLC SLs Socket */
+    ogs_sockopt_t   *option;    /* E-SMLC SLs Socket Option */
+    ogs_poll_t      *poll;      /* E-SMLC SLs Poll */
+} mme_esmlc_t;
 
 typedef struct mme_csmap_s {
     ogs_lnode_t     lnode;
@@ -1075,6 +1095,15 @@ void mme_vlr_remove(mme_vlr_t *vlr);
 void mme_vlr_remove_all(void);
 void mme_vlr_close(mme_vlr_t *vlr);
 mme_vlr_t *mme_vlr_find_by_sock(const ogs_sock_t *sock);
+
+mme_esmlc_t *mme_esmlc_add(
+        ogs_sockaddr_t *sa_list,
+        ogs_sockaddr_t *local_sa_list,
+        ogs_sockopt_t *option);
+void mme_esmlc_remove(mme_esmlc_t *esmlc);
+void mme_esmlc_remove_all(void);
+void mme_esmlc_close(mme_esmlc_t *esmlc);
+mme_esmlc_t *mme_esmlc_find_by_sock(const ogs_sock_t *sock);
 
 mme_csmap_t *mme_csmap_add(mme_vlr_t *vlr);
 void mme_csmap_remove(mme_csmap_t *csmap);
