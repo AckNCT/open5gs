@@ -39,7 +39,6 @@ ogs_pkbuf_t *lcs_ap_build_location_request(
     LCS_AP_IMSI_t *IMSI = NULL;
     LCS_AP_LCS_Priority_t *LCS_Priority = NULL;
 
-    ogs_pkbuf_t *pkbuf = NULL;
     uint8_t corr_buf[4];
     uint8_t imsi_buf[OGS_MAX_IMSI_LEN];
     int imsi_len = 0;
@@ -101,8 +100,8 @@ ogs_pkbuf_t *lcs_ap_build_location_request(
     LCS_Priority = &ie->value.choice.LCS_Priority;
     ogs_asn_buffer_to_OCTET_STRING(&prio, 1, LCS_Priority);
 
-    pkbuf = ogs_lcs_ap_encode(&message);
-    ogs_lcs_ap_free(&message);
-
-    return pkbuf;
+    /* ogs_lcs_ap_encode() -> ogs_asn_encode() frees `message` internally after
+     * encoding; freeing it again here would double-free (talloc abort / crash).
+     * Mirrors src/mme/s1ap-build.c, which just returns ogs_s1ap_encode(&pdu). */
+    return ogs_lcs_ap_encode(&message);
 }
