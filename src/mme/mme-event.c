@@ -106,6 +106,9 @@ const char *mme_event_get_name(mme_event_t *e)
     case MME_EVENT_LCS_AP_LO_CONNREFUSED:
         return "MME_EVENT_LCS_AP_LO_CONNREFUSED";
 
+    case MME_EVENT_SLG_PLR:
+        return "MME_EVENT_SLG_PLR";
+
     case MME_EVENT_GN_MESSAGE:
         return "MME_EVENT_GN_MESSAGE";
     case MME_EVENT_GN_TIMER:

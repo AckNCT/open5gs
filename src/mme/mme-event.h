@@ -55,6 +55,10 @@ typedef enum {
     MME_EVENT_LCS_AP_LO_SCTP_COMM_UP,
     MME_EVENT_LCS_AP_LO_CONNREFUSED,
 
+    /* SLg (TS 29.172): a Provide-Location-Request arrived on a freeDiameter
+     * thread and is handed off to the event loop to drive the SLs exchange. */
+    MME_EVENT_SLG_PLR,
+
     MME_EVENT_GN_MESSAGE,
     MME_EVENT_GN_TIMER,
 
@@ -101,6 +105,7 @@ typedef struct mme_event_s {
 
     mme_vlr_t *vlr;
     mme_esmlc_t *esmlc;
+    uint32_t slg_correlation_id;
     ogs_pool_id_t enb_id;
     ogs_pool_id_t enb_ue_id;
     ogs_pool_id_t sgw_ue_id;

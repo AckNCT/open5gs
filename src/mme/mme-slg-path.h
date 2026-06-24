@@ -29,6 +29,15 @@ extern "C" {
 int mme_slg_init(void);
 void mme_slg_final(void);
 
+/* Event loop: drive the SLs Location-Service-Request for a parked PLR. */
+void mme_slg_handle_plr(uint32_t correlation_id);
+
+/* Complete and send the parked PLA. `gad` is a GAD-encoded Location-Estimate
+ * (gad_len 0 -> answer without a location). Called from the LCS-AP handler when
+ * the SLs Location-Service-Response arrives. */
+void mme_slg_answer_location(uint32_t correlation_id,
+        const uint8_t *gad, int gad_len);
+
 #ifdef __cplusplus
 }
 #endif

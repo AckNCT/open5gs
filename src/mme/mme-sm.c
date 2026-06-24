@@ -24,6 +24,7 @@
 #include "s1ap-handler.h"
 #include "s1ap-path.h"
 #include "sgsap-path.h"
+#include "mme-slg-path.h"
 #include "nas-security.h"
 #include "nas-path.h"
 #include "emm-handler.h"
@@ -1097,6 +1098,10 @@ cleanup:
         ogs_assert(OGS_FSM_STATE(&esmlc->sm));
 
         ogs_fsm_dispatch(&esmlc->sm, e);
+        break;
+
+    case MME_EVENT_SLG_PLR:
+        mme_slg_handle_plr(e->slg_correlation_id);
         break;
 
     default:
