@@ -47,12 +47,13 @@ int ogs_diam_slg_init(void)
     CHECK_dict_search(DICT_COMMAND, CMD_BY_NAME, "Provide-Location-Request", &ogs_diam_slg_cmd_plr);
     CHECK_dict_search(DICT_COMMAND, CMD_BY_NAME, "Provide-Location-Answer", &ogs_diam_slg_cmd_pla);
 
-    CHECK_dict_search(DICT_AVP, AVP_BY_NAME_ALL_VENDORS, "SLg-Location-Type", &ogs_diam_slg_location_type);
-    CHECK_dict_search(DICT_AVP, AVP_BY_NAME_ALL_VENDORS, "LCS-Priority", &ogs_diam_slg_lcs_priority);
-    CHECK_dict_search(DICT_AVP, AVP_BY_NAME_ALL_VENDORS, "LCS-Reference-Number", &ogs_diam_slg_lcs_reference_number);
-    CHECK_dict_search(DICT_AVP, AVP_BY_NAME_ALL_VENDORS, "Location-Estimate", &ogs_diam_slg_location_estimate);
-    CHECK_dict_search(DICT_AVP, AVP_BY_NAME_ALL_VENDORS, "Accuracy-Fulfilment-Indicator", &ogs_diam_slg_accuracy_fulfilment_indicator);
-    CHECK_dict_search(DICT_AVP, AVP_BY_NAME_ALL_VENDORS, "Age-Of-Location-Estimate", &ogs_diam_slg_age_of_location_estimate);
+    /*
+     * These AVPs are provided by the freeDiameter dict_dcca_3gpp extension. Look
+     * them up best-effort (retval 0): a missing/renamed AVP leaves the global
+     * NULL and the handler simply omits it, rather than aborting MME startup.
+     */
+    (void)fd_dict_search(fd_g_config->cnf_dict, DICT_AVP, AVP_BY_NAME_ALL_VENDORS,
+            "Location-Estimate", &ogs_diam_slg_location_estimate, 0);
 
     return 0;
 }

@@ -95,15 +95,17 @@ static int mme_slg_plr_cb(struct msg **msg, struct avp *avp_unused,
      * the real path: trigger the SLs Location-Service-Request to the E-SMLC,
      * hold this PLA, and answer it when the Location-Service-Response arrives.
      */
-    slg_gad_ellipsoid_point(gad, 32.0855, 34.7822);
-    ret = fd_msg_avp_new(ogs_diam_slg_location_estimate, 0, &avp);
-    ogs_assert(ret == 0);
-    val.os.data = gad;
-    val.os.len = sizeof(gad);
-    ret = fd_msg_avp_setvalue(avp, &val);
-    ogs_assert(ret == 0);
-    ret = fd_msg_avp_add(ans, MSG_BRW_LAST_CHILD, avp);
-    ogs_assert(ret == 0);
+    if (ogs_diam_slg_location_estimate) {
+        slg_gad_ellipsoid_point(gad, 32.0855, 34.7822);
+        ret = fd_msg_avp_new(ogs_diam_slg_location_estimate, 0, &avp);
+        ogs_assert(ret == 0);
+        val.os.data = gad;
+        val.os.len = sizeof(gad);
+        ret = fd_msg_avp_setvalue(avp, &val);
+        ogs_assert(ret == 0);
+        ret = fd_msg_avp_add(ans, MSG_BRW_LAST_CHILD, avp);
+        ogs_assert(ret == 0);
+    }
 
     /* Result-Code = DIAMETER_SUCCESS */
     ret = fd_msg_rescode_set(ans, (char *)"DIAMETER_SUCCESS", NULL, NULL, 1);
