@@ -28,6 +28,7 @@ libasn1c_common_sources = files('''
     GraphicString.c
     INTEGER.h
     INTEGER.c
+    BOOLEAN.c
     NULL.h
     NULL.c
     NativeEnumerated.h
@@ -96,6 +97,7 @@ libasn1c_common_sources = files('''
     ANY_aper.c
     ENUMERATED_aper.c
     INTEGER_aper.c
+    BOOLEAN_aper.c
     NULL_aper.c
     NativeEnumerated_aper.c
     NativeInteger_aper.c
@@ -107,6 +109,7 @@ libasn1c_common_sources = files('''
     constr_SET_OF_aper.c
     BIT_STRING_print.c
     INTEGER_print.c
+    BOOLEAN_print.c
     NULL_print.c
     NativeInteger_print.c
     OBJECT_IDENTIFIER_print.c
@@ -119,6 +122,7 @@ libasn1c_common_sources = files('''
     asn_random_fill.c
     BIT_STRING_rfill.c
     INTEGER_rfill.c
+    BOOLEAN_rfill.c
     NULL_rfill.c
     NativeInteger_rfill.c
     OBJECT_IDENTIFIER_rfill.c

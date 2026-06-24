@@ -32,10 +32,10 @@ liblcsap = library('ogslcsap',
     version : libogslib_version,
     c_args : '-DOGS_LCS_AP_COMPILATION',
     include_directories : [liblcsap_inc, libinc],
-    dependencies : libcore_dep,
+    dependencies : [libcore_dep, libasn1c_lcs_ap_dep],
     install : true)
 
 liblcsap_dep = declare_dependency(
     link_with : liblcsap,
     include_directories : [liblcsap_inc, libinc],
-    dependencies : libcore_dep)
+    dependencies : [libcore_dep, libasn1c_lcs_ap_dep])

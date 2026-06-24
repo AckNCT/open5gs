@@ -1,0 +1,152 @@
+# LCS-AP (TS 29.171) asn1c-generated APER codec.
+libasn1c_lcs_ap_sources = files('''
+    LCS_AP_APDU.c
+    LCS_AP_Accuracy-Fulfillment-Indicator.c
+    LCS_AP_Additional-PositioningDataSet.c
+    LCS_AP_Additional-PositioningMethodAndUsage.c
+    LCS_AP_Altitude-And-Direction.c
+    LCS_AP_Altitude.c
+    LCS_AP_Angle.c
+    LCS_AP_Barometric-Pressure.c
+    LCS_AP_Bearing.c
+    LCS_AP_C0.c
+    LCS_AP_Cell-Portion-ID.c
+    LCS_AP_CellIdentity.c
+    LCS_AP_Ciphering-Data-Ack.c
+    LCS_AP_Ciphering-Data-Error-Report-Contents.c
+    LCS_AP_Ciphering-Data-Error-Report.c
+    LCS_AP_Ciphering-Data-Set.c
+    LCS_AP_Ciphering-Data.c
+    LCS_AP_Ciphering-Key-Data-Result.c
+    LCS_AP_Ciphering-Key-Data.c
+    LCS_AP_Ciphering-Key.c
+    LCS_AP_Ciphering-Set-ID.c
+    LCS_AP_Civic-Address.c
+    LCS_AP_Confidence.c
+    LCS_AP_Connection-Oriented-Information.c
+    LCS_AP_Connectionless-Information.c
+    LCS_AP_Correlation-ID.c
+    LCS_AP_Country.c
+    LCS_AP_Coverage-Level.c
+    LCS_AP_Criticality.c
+    LCS_AP_DegreesLatitude.c
+    LCS_AP_DegreesLongitude.c
+    LCS_AP_Direction-Of-Altitude.c
+    LCS_AP_E-CGI.c
+    LCS_AP_E-SMLC-ID.c
+    LCS_AP_ENB-ID.c
+    LCS_AP_Ellipsoid-Arc.c
+    LCS_AP_Ellipsoid-Point-With-Altitude-And-Uncertainty-Ellipsoid.c
+    LCS_AP_Ellipsoid-Point-With-Altitude.c
+    LCS_AP_Ellipsoid-Point-With-Uncertainty-Ellipse.c
+    LCS_AP_GNSS-Positioning-Data-Set.c
+    LCS_AP_GNSS-Positioning-Method-And-Usage.c
+    LCS_AP_Geographical-Area.c
+    LCS_AP_Geographical-Coordinates.c
+    LCS_AP_Global-eNB-ID.c
+    LCS_AP_High-Accuracy-Altitude.c
+    LCS_AP_High-Accuracy-DegreesLatitude.c
+    LCS_AP_High-Accuracy-DegreesLongitude.c
+    LCS_AP_High-Accuracy-Ellipsoid-Point-With-Altitude-And-Scalable-Uncertainty-Ellipsoid.c
+    LCS_AP_High-Accuracy-Ellipsoid-Point-With-Altitude-And-Uncertainty-Ellipsoid.c
+    LCS_AP_High-Accuracy-Ellipsoid-Point-With-Scalable-Uncertainty-Ellipse.c
+    LCS_AP_High-Accuracy-Ellipsoid-Point-With-Uncertainty-Ellipse.c
+    LCS_AP_High-Accuracy-Extended-Uncertainty-Code.c
+    LCS_AP_High-Accuracy-Extended-Uncertainty-Ellipse.c
+    LCS_AP_High-Accuracy-Geographical-Coordinates.c
+    LCS_AP_High-Accuracy-Scalable-Uncertainty-Altitude.c
+    LCS_AP_High-Accuracy-Scalable-Uncertainty-Ellipse.c
+    LCS_AP_High-Accuracy-Uncertainty-Code.c
+    LCS_AP_High-Accuracy-Uncertainty-Ellipse.c
+    LCS_AP_Home-eNB-ID.c
+    LCS_AP_Horizontal-Accuracy.c
+    LCS_AP_Horizontal-Speed-And-Bearing.c
+    LCS_AP_Horizontal-Velocity-With-Uncertainty.c
+    LCS_AP_Horizontal-Velocity.c
+    LCS_AP_Horizontal-With-Vertical-Velocity-And-Uncertainty.c
+    LCS_AP_Horizontal-With-Vertical-Velocity.c
+    LCS_AP_IMEI.c
+    LCS_AP_IMSI.c
+    LCS_AP_Include-Velocity.c
+    LCS_AP_InitiatingMessage.c
+    LCS_AP_Inner-Radius.c
+    LCS_AP_International-Area-Indication.c
+    LCS_AP_LCS-AP-PDU.c
+    LCS_AP_LCS-Cause.c
+    LCS_AP_LCS-Client-Type.c
+    LCS_AP_LCS-Priority.c
+    LCS_AP_LCS-QoS.c
+    LCS_AP_LCS-Service-Type-ID.c
+    LCS_AP_LatitudeSign.c
+    LCS_AP_Location-Abort-Request.c
+    LCS_AP_Location-Request.c
+    LCS_AP_Location-Response.c
+    LCS_AP_Location-Type.c
+    LCS_AP_Long-Macro-eNB-ID.c
+    LCS_AP_Macro-eNB-ID.c
+    LCS_AP_Message-Identifier.c
+    LCS_AP_Misc-Cause.c
+    LCS_AP_MultipleAPDUs.c
+    LCS_AP_Network-Element.c
+    LCS_AP_Orientation-Major-Axis.c
+    LCS_AP_PLMN-ID.c
+    LCS_AP_Payload-Type.c
+    LCS_AP_Point-With-Uncertainty.c
+    LCS_AP_Point.c
+    LCS_AP_Polygon-Point.c
+    LCS_AP_Polygon.c
+    LCS_AP_Positioning-Data-Set.c
+    LCS_AP_Positioning-Data.c
+    LCS_AP_Positioning-Method-And-Usage.c
+    LCS_AP_Presence.c
+    LCS_AP_ProcedureCode.c
+    LCS_AP_Protocol-Cause.c
+    LCS_AP_ProtocolExtensionContainer.c
+    LCS_AP_ProtocolExtensionField.c
+    LCS_AP_ProtocolExtensionID.c
+    LCS_AP_ProtocolIE-Container.c
+    LCS_AP_ProtocolIE-ContainerList.c
+    LCS_AP_ProtocolIE-Field.c
+    LCS_AP_ProtocolIE-ID.c
+    LCS_AP_RAT-Type.c
+    LCS_AP_Radio-Network-Layer-Cause.c
+    LCS_AP_Reset-Acknowledge.c
+    LCS_AP_Reset-Request.c
+    LCS_AP_Response-Time.c
+    LCS_AP_Return-Error-Cause.c
+    LCS_AP_Return-Error-Type.c
+    LCS_AP_SIB-Types.c
+    LCS_AP_Short-Macro-eNB-ID.c
+    LCS_AP_Storage-Outcome.c
+    LCS_AP_SuccessfulOutcome.c
+    LCS_AP_TAIs-List.c
+    LCS_AP_TBCD-STRING.c
+    LCS_AP_Transport-Layer-Cause.c
+    LCS_AP_TriggeringMessage.c
+    LCS_AP_UE-Area-Indication.c
+    LCS_AP_UE-Country-Determination-Indication.c
+    LCS_AP_UE-Positioning-Capability.c
+    LCS_AP_Uncertainty-Altitude.c
+    LCS_AP_Uncertainty-Code.c
+    LCS_AP_Uncertainty-Ellipse.c
+    LCS_AP_UnsuccessfulOutcome.c
+    LCS_AP_Validity-Duration.c
+    LCS_AP_Validity-Start-Time.c
+    LCS_AP_Velocity-Estimate.c
+    LCS_AP_Vertical-Accuracy.c
+    LCS_AP_Vertical-Requested.c
+    LCS_AP_Vertical-Speed-Direction.c
+    LCS_AP_Vertical-Velocity.c
+'''.split())
+libasn1c_lcs_ap_inc = include_directories('.')
+libasn1c_lcs_ap = library('ogsasn1c-lcs-ap',
+    sources : libasn1c_lcs_ap_sources,
+    version : libogslib_version,
+    c_args : libasn1c_common_cc_flags,
+    include_directories : libasn1c_lcs_ap_inc,
+    dependencies : [libasn1c_common_dep, libasn1c_util_dep],
+    install : true)
+libasn1c_lcs_ap_dep = declare_dependency(
+    link_with : libasn1c_lcs_ap,
+    include_directories : libasn1c_lcs_ap_inc,
+    dependencies : [libasn1c_common_dep, libasn1c_util_dep])
