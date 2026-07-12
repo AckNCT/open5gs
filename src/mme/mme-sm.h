@@ -63,7 +63,7 @@ void sgsap_state_exception(ogs_fsm_t *s, mme_event_t *e);
 
 void lcs_ap_state_initial(ogs_fsm_t *s, mme_event_t *e);
 void lcs_ap_state_final(ogs_fsm_t *s, mme_event_t *e);
-void lcs_ap_state_will_connect(ogs_fsm_t *s, mme_event_t *e);
+void lcs_ap_state_will_accept(ogs_fsm_t *s, mme_event_t *e);
 void lcs_ap_state_connected(ogs_fsm_t *s, mme_event_t *e);
 void lcs_ap_state_exception(ogs_fsm_t *s, mme_event_t *e);
 

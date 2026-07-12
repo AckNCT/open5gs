@@ -27,34 +27,96 @@
 #if HAVE_USRSCTP
 static void usrsctp_recv_handler(struct socket *socket, void *data, int flags);
 #else
+static void lksctp_accept_handler(short when, ogs_socket_t fd, void *data);
 static void lksctp_recv_handler(short when, ogs_socket_t fd, void *data);
 #endif
 
+static void accept_handler(ogs_sock_t *sock);
 static void recv_handler(ogs_sock_t *sock);
 
-ogs_sock_t *lcs_ap_client(mme_esmlc_t *esmlc)
+/*
+ * SLs (LCS-AP, TS 29.171): the MME is the SCTP server. It listens and the
+ * E-SMLC (SCTP client) dials in; on accept we attach the association to the
+ * single esmlc context and post MME_EVENT_LCS_AP_LO_ACCEPT to drive its FSM.
+ */
+ogs_sock_t *lcs_ap_server(ogs_socknode_t *node)
 {
+    char buf[OGS_ADDRSTRLEN];
     ogs_sock_t *sock = NULL;
-
-    ogs_assert(esmlc);
-
-    sock = ogs_sctp_client(SOCK_STREAM,
-            esmlc->sa_list, esmlc->local_sa_list, esmlc->option);
-    if (sock) {
-        esmlc->sock = sock;
-#if HAVE_USRSCTP
-        usrsctp_set_non_blocking((struct socket *)sock, 1);
-        usrsctp_set_upcall((struct socket *)sock, usrsctp_recv_handler, NULL);
-#else
-        esmlc->poll = ogs_pollset_add(ogs_app()->pollset,
-                OGS_POLLIN, sock->fd, lksctp_recv_handler, sock);
-        ogs_assert(esmlc->poll);
+#if !HAVE_USRSCTP
+    ogs_poll_t *poll = NULL;
 #endif
-        ogs_info("lcs_ap client() %s",
-                ogs_sockaddr_to_string_static(esmlc->sa_list));
-    }
+
+    ogs_assert(node);
+
+#if HAVE_USRSCTP
+    sock = ogs_sctp_server(SOCK_SEQPACKET, node->addr, node->option);
+    if (!sock) return NULL;
+    usrsctp_set_non_blocking((struct socket *)sock, 1);
+    usrsctp_set_upcall((struct socket *)sock, usrsctp_recv_handler, NULL);
+#else
+    sock = ogs_sctp_server(SOCK_STREAM, node->addr, node->option);
+    if (!sock) return NULL;
+    poll = ogs_pollset_add(ogs_app()->pollset,
+            OGS_POLLIN, sock->fd, lksctp_accept_handler, sock);
+    ogs_assert(poll);
+
+    node->poll = poll;
+#endif
+
+    node->sock = sock;
+    node->cleanup = ogs_sctp_destroy;
+
+    ogs_info("lcs_ap_server() [%s]:%d",
+            OGS_ADDR(node->addr, buf), OGS_PORT(node->addr));
 
     return sock;
+}
+
+static void accept_handler(ogs_sock_t *sock)
+{
+    char buf[OGS_ADDRSTRLEN];
+    ogs_sock_t *new = NULL;
+    mme_esmlc_t *esmlc = NULL;
+
+    ogs_assert(sock);
+
+    new = ogs_sock_accept(sock);
+    if (!new) {
+        ogs_log_message(OGS_LOG_ERROR, ogs_socket_errno, "accept() failed");
+        return;
+    }
+
+    esmlc = ogs_list_first(&mme_self()->esmlc_list);
+    if (!esmlc) {
+        ogs_error("[LCS-AP] No E-SMLC configured; dropping association [%s]:%d",
+                OGS_ADDR(&new->remote_addr, buf),
+                OGS_PORT(&new->remote_addr));
+        ogs_sctp_destroy(new);
+        return;
+    }
+
+    /* One association at a time: reject a second dial-in until the current one
+     * drops (CONNREFUSED clears esmlc->sock). */
+    if (esmlc->sock) {
+        ogs_warn("[LCS-AP] E-SMLC already connected; "
+                "rejecting new association [%s]:%d",
+                OGS_ADDR(&new->remote_addr, buf),
+                OGS_PORT(&new->remote_addr));
+        ogs_sctp_destroy(new);
+        return;
+    }
+
+    esmlc->sock = new;
+    esmlc->poll = ogs_pollset_add(ogs_app()->pollset,
+            OGS_POLLIN, new->fd, lksctp_recv_handler, new);
+    ogs_assert(esmlc->poll);
+
+    ogs_info("[LCS-AP] E-SMLC accepted [%s]:%d",
+            OGS_ADDR(&new->remote_addr, buf),
+            OGS_PORT(&new->remote_addr));
+
+    lcs_ap_event_push(MME_EVENT_LCS_AP_LO_ACCEPT, new, NULL, NULL, 0, 0);
 }
 
 #if HAVE_USRSCTP
@@ -68,6 +130,14 @@ static void usrsctp_recv_handler(struct socket *socket, void *data, int flags)
     }
 }
 #else
+static void lksctp_accept_handler(short when, ogs_socket_t fd, void *data)
+{
+    ogs_assert(data);
+    ogs_assert(fd != INVALID_SOCKET);
+
+    accept_handler(data);
+}
+
 static void lksctp_recv_handler(short when, ogs_socket_t fd, void *data)
 {
     ogs_sock_t *sock = NULL;

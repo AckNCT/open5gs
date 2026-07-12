@@ -86,6 +86,8 @@ typedef struct mme_context_s {
     ogs_list_t      s1ap_list;      /* MME S1AP IPv4 Server List */
     ogs_list_t      s1ap_list6;     /* MME S1AP IPv6 Server List */
 
+    ogs_list_t      sls_list;       /* MME SLs (LCS-AP) SCTP Server List */
+
     ogs_list_t      sgw_list;       /* SGW GTPv2C Client List */
     mme_sgw_t       *sgw;           /* Iterator for SGW round-robin */
 
@@ -98,9 +100,10 @@ typedef struct mme_context_s {
     ogs_list_t      enb_list;       /* ENB S1AP Client List */
 
     ogs_list_t      vlr_list;       /* VLR SGsAP Client List */
-    ogs_list_t      esmlc_list;     /* E-SMLC SLs(LCS-AP) Client List */
-    const char      *sls_test_imsi; /* If set, send a test Location-Request on
-                                       SLs connect (Phase A has no SLg yet) */
+    ogs_list_t      esmlc_list;     /* E-SMLC SLs(LCS-AP) association (E-SMLC
+                                       is the SCTP client and connects in) */
+    const char      *sls_test_imsi; /* If set, send a test Location-Request when
+                                       the E-SMLC connects (self-test) */
     ogs_list_t      csmap_list;     /* TAI-LAI Map List */
     ogs_list_t      hssmap_list;    /* PLMN HSS Map List */
 

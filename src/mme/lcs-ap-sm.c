@@ -27,6 +27,13 @@
 #include "lcs-ap-path.h"
 #include "lcs-ap-handler.h"
 
+/*
+ * SLs (LCS-AP, TS 29.171) is server-mode on the MME: the MME listens
+ * (lcs_ap_server) and the E-SMLC is the SCTP client that dials in. So the FSM
+ * has no outbound-connect/retry logic — it idles in `will_accept` until the
+ * accept handler attaches an association and posts MME_EVENT_LCS_AP_LO_ACCEPT.
+ */
+
 void lcs_ap_state_initial(ogs_fsm_t *s, mme_event_t *e)
 {
     mme_esmlc_t *esmlc = NULL;
@@ -38,36 +45,20 @@ void lcs_ap_state_initial(ogs_fsm_t *s, mme_event_t *e)
     esmlc = e->esmlc;
     ogs_assert(esmlc);
 
-    esmlc->t_conn = ogs_timer_add(ogs_app()->timer_mgr,
-            mme_timer_lcs_ap_cli_conn_to_srv, esmlc);
-    if (!esmlc->t_conn) {
-        ogs_error("ogs_timer_add() failed");
-        return;
-    }
-
-    OGS_FSM_TRAN(s, &lcs_ap_state_will_connect);
+    OGS_FSM_TRAN(s, &lcs_ap_state_will_accept);
 }
 
 void lcs_ap_state_final(ogs_fsm_t *s, mme_event_t *e)
 {
-    mme_esmlc_t *esmlc = NULL;
     ogs_assert(s);
     ogs_assert(e);
 
     mme_sm_debug(e);
-
-    esmlc = e->esmlc;
-    ogs_assert(esmlc);
-
-    ogs_timer_delete(esmlc->t_conn);
 }
 
-void lcs_ap_state_will_connect(ogs_fsm_t *s, mme_event_t *e)
+void lcs_ap_state_will_accept(ogs_fsm_t *s, mme_event_t *e)
 {
-    char buf[OGS_ADDRSTRLEN];
-
     mme_esmlc_t *esmlc = NULL;
-    ogs_sockaddr_t *addr = NULL;
     ogs_assert(s);
     ogs_assert(e);
 
@@ -75,42 +66,14 @@ void lcs_ap_state_will_connect(ogs_fsm_t *s, mme_event_t *e)
 
     esmlc = e->esmlc;
     ogs_assert(esmlc);
-
-    ogs_assert(esmlc->t_conn);
 
     switch (e->id) {
     case OGS_FSM_ENTRY_SIG:
-        ogs_timer_start(esmlc->t_conn,
-                mme_timer_cfg(MME_TIMER_LCS_AP_CLI_CONN_TO_SRV)->duration);
-        lcs_ap_client(esmlc);
+        /* The SLs SCTP server is listening; wait for the E-SMLC to connect. */
         break;
     case OGS_FSM_EXIT_SIG:
-        ogs_timer_stop(esmlc->t_conn);
         break;
-    case MME_EVENT_LCS_AP_TIMER:
-        switch(e->timer_id) {
-        case MME_TIMER_LCS_AP_CLI_CONN_TO_SRV:
-            esmlc = e->esmlc;
-            ogs_assert(esmlc);
-            addr = esmlc->sa_list;
-            ogs_assert(addr);
-
-            ogs_warn("[LCS-AP] Connect to E-SMLC [%s]:%d failed",
-                        OGS_ADDR(addr, buf), OGS_PORT(addr));
-
-            ogs_assert(esmlc->t_conn);
-            ogs_timer_start(esmlc->t_conn,
-                mme_timer_cfg(MME_TIMER_LCS_AP_CLI_CONN_TO_SRV)->duration);
-
-            mme_esmlc_close(esmlc);
-            lcs_ap_client(esmlc);
-            break;
-        default:
-            ogs_error("Unknown timer[%s:%d]",
-                    mme_timer_get_name(e->timer_id), e->timer_id);
-            break;
-        }
-        break;
+    case MME_EVENT_LCS_AP_LO_ACCEPT:
     case MME_EVENT_LCS_AP_LO_SCTP_COMM_UP:
         OGS_FSM_TRAN(s, lcs_ap_state_connected);
         break;
@@ -134,10 +97,9 @@ void lcs_ap_state_connected(ogs_fsm_t *s, mme_event_t *e)
 
     switch (e->id) {
     case OGS_FSM_ENTRY_SIG:
-        ogs_info("[LCS-AP] SLs connected to E-SMLC [%s]",
-                ogs_sockaddr_to_string_static(esmlc->sa_list));
-        /* Phase A has no SLg trigger yet: if a test IMSI is configured,
-         * kick off a Location-Service-Request to exercise the SLs path. */
+        ogs_info("[LCS-AP] SLs association up with E-SMLC");
+        /* Optional self-test: send a Location-Service-Request when the E-SMLC
+         * connects (the SLg PLR is the real trigger in normal operation). */
         if (mme_self()->sls_test_imsi) {
             ogs_info("[LCS-AP] Sending test Location-Service-Request "
                     "for IMSI[%s]", mme_self()->sls_test_imsi);
@@ -147,9 +109,13 @@ void lcs_ap_state_connected(ogs_fsm_t *s, mme_event_t *e)
         break;
     case OGS_FSM_EXIT_SIG:
         break;
+    case MME_EVENT_LCS_AP_LO_SCTP_COMM_UP:
+        /* An accepted association may also surface COMM_UP via its notification;
+         * we are already connected, so ignore it. */
+        break;
     case MME_EVENT_LCS_AP_LO_CONNREFUSED:
         mme_esmlc_close(esmlc);
-        OGS_FSM_TRAN(s, lcs_ap_state_will_connect);
+        OGS_FSM_TRAN(s, lcs_ap_state_will_accept);
         break;
     case MME_EVENT_LCS_AP_MESSAGE:
         pkbuf = e->pkbuf;
