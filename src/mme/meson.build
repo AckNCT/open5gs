@@ -29,6 +29,7 @@ libmme_sources = files('''
     lcs-ap-path.h
     lcs-ap-build.h
     lcs-ap-handler.h
+    lpp_lppa_templates.h
     mme-fd-path.h
     mme-slg-path.h
     mme-s6a-handler.h

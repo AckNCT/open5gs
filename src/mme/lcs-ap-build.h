@@ -29,6 +29,16 @@ extern "C" {
 ogs_pkbuf_t *lcs_ap_build_location_request(
         const char *imsi_bcd, uint32_t correlation_id);
 
+/*
+ * Build an SLs Connection-Oriented-Information-Transfer (TS 29.171) carrying an
+ * LPP/LPPa APDU back to the E-SMLC. `payload_type` is LCS_AP_Payload_Type_lPP or
+ * LCS_AP_Payload_Type_lPPa; the Correlation-ID echoes the one from the request so
+ * the E-SMLC can match this response to its outstanding exchange.
+ */
+ogs_pkbuf_t *lcs_ap_build_connection_oriented_info(
+        uint32_t correlation_id, long payload_type,
+        const uint8_t *apdu, size_t apdu_len);
+
 #ifdef __cplusplus
 }
 #endif
