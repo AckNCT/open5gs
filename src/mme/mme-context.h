@@ -81,12 +81,10 @@ typedef struct mme_context_s {
 
     uint16_t        s1ap_port;      /* Default S1AP Port */
     uint16_t        sgsap_port;     /* Default SGsAP Port */
-    uint16_t        sls_port;       /* Default SLs (LCS-AP) Port */
+    uint16_t        sls_port;       /* Default SLs (LCS-AP) Port on the E-SMLC */
 
     ogs_list_t      s1ap_list;      /* MME S1AP IPv4 Server List */
     ogs_list_t      s1ap_list6;     /* MME S1AP IPv6 Server List */
-
-    ogs_list_t      sls_list;       /* MME SLs (LCS-AP) SCTP Server List */
 
     ogs_list_t      sgw_list;       /* SGW GTPv2C Client List */
     mme_sgw_t       *sgw;           /* Iterator for SGW round-robin */

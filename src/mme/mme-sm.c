@@ -1035,19 +1035,6 @@ cleanup:
         ogs_fsm_dispatch(&vlr->sm, e);
         break;
 
-    case MME_EVENT_LCS_AP_LO_ACCEPT:
-        sock = e->sock;
-        ogs_assert(sock);
-
-        /* The accept handler already attached this socket to the esmlc. */
-        esmlc = mme_esmlc_find_by_sock(sock);
-        ogs_assert(esmlc);
-        ogs_assert(OGS_FSM_STATE(&esmlc->sm));
-
-        e->esmlc = esmlc;
-        ogs_fsm_dispatch(&esmlc->sm, e);
-        break;
-
     case MME_EVENT_LCS_AP_LO_SCTP_COMM_UP:
         sock = e->sock;
         ogs_assert(sock);

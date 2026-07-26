@@ -34,7 +34,7 @@ extern "C" {
 int lcs_ap_open(void);
 void lcs_ap_close(void);
 
-ogs_sock_t *lcs_ap_server(ogs_socknode_t *node);
+ogs_sock_t *lcs_ap_client(mme_esmlc_t *esmlc);
 
 int lcs_ap_send(ogs_sock_t *sock, ogs_pkbuf_t *pkbuf, uint16_t stream_no);
 int lcs_ap_send_to_esmlc(

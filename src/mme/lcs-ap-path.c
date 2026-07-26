@@ -28,15 +28,11 @@
 
 int lcs_ap_open(void)
 {
-    ogs_socknode_t *node = NULL;
     mme_esmlc_t *esmlc = NULL;
 
-    /* Start the SLs (LCS-AP) SCTP server(s); the E-SMLC is the client and
-     * dials in. */
-    ogs_list_for_each(&mme_self()->sls_list, node)
-        if (lcs_ap_server(node) == NULL) return OGS_ERROR;
-
-    /* Init the per-E-SMLC FSM; it idles until the E-SMLC connects. */
+    /* SLs (LCS-AP) is client-mode on the MME: the E-SMLC listens and the MME
+     * dials in. Init the per-E-SMLC FSM; its initial state starts the
+     * connect-retry timer and calls lcs_ap_client(). */
     ogs_list_for_each(&mme_self()->esmlc_list, esmlc) {
         mme_event_t e;
 
@@ -61,8 +57,6 @@ void lcs_ap_close(void)
 
         ogs_fsm_fini(&esmlc->sm, &e);
     }
-
-    ogs_socknode_remove_all(&mme_self()->sls_list);
 }
 
 int lcs_ap_send(ogs_sock_t *sock, ogs_pkbuf_t *pkbuf, uint16_t stream_no)

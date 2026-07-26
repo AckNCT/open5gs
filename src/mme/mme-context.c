@@ -94,8 +94,6 @@ void mme_context_init(void)
     ogs_list_init(&self.s1ap_list);
     ogs_list_init(&self.s1ap_list6);
 
-    ogs_list_init(&self.sls_list);
-
     ogs_list_init(&self.sgsn_list);
     ogs_list_init(&self.sgw_list);
     ogs_list_init(&self.pgw_list);
@@ -2062,17 +2060,17 @@ int mme_context_parse_config(void)
                             ogs_warn("unknown key `%s`", network_name_key);
                     }
                 } else if (!strcmp(mme_key, "e-smlc")) {
-                    /* SLs (LCS-AP, TS 29.171): the E-SMLC is the SCTP client and
-                     * dials in; the MME is the SCTP server and accepts it. */
+                    /* SLs (LCS-AP, TS 29.171): the MME is the SCTP client and
+                     * dials the E-SMLC's SLs server (`client.address`). */
                     ogs_yaml_iter_t esmlc_iter;
                     ogs_yaml_iter_recurse(&mme_iter, &esmlc_iter);
                     while (ogs_yaml_iter_next(&esmlc_iter)) {
                         const char *esmlc_key =
                             ogs_yaml_iter_key(&esmlc_iter);
                         ogs_assert(esmlc_key);
-                        if (!strcmp(esmlc_key, "server")) {
-                            ogs_yaml_iter_t server_iter, server_array;
-                            ogs_yaml_iter_recurse(&esmlc_iter, &server_array);
+                        if (!strcmp(esmlc_key, "client")) {
+                            ogs_yaml_iter_t client_iter, client_array;
+                            ogs_yaml_iter_recurse(&esmlc_iter, &client_array);
                             do {
                                 mme_esmlc_t *esmlc = NULL;
                                 ogs_sockaddr_t *addr = NULL;
@@ -2083,29 +2081,29 @@ int mme_context_parse_config(void)
                                 ogs_sockopt_t option;
                                 bool is_option = false;
 
-                                if (ogs_yaml_iter_type(&server_array) ==
+                                if (ogs_yaml_iter_type(&client_array) ==
                                         YAML_MAPPING_NODE) {
-                                    memcpy(&server_iter, &server_array,
+                                    memcpy(&client_iter, &client_array,
                                             sizeof(ogs_yaml_iter_t));
-                                } else if (ogs_yaml_iter_type(&server_array) ==
+                                } else if (ogs_yaml_iter_type(&client_array) ==
                                     YAML_SEQUENCE_NODE) {
-                                    if (!ogs_yaml_iter_next(&server_array))
+                                    if (!ogs_yaml_iter_next(&client_array))
                                         break;
                                     ogs_yaml_iter_recurse(
-                                            &server_array, &server_iter);
-                                } else if (ogs_yaml_iter_type(&server_array) ==
+                                            &client_array, &client_iter);
+                                } else if (ogs_yaml_iter_type(&client_array) ==
                                     YAML_SCALAR_NODE) {
                                     break;
                                 } else
                                     ogs_assert_if_reached();
 
-                                while (ogs_yaml_iter_next(&server_iter)) {
-                                    const char *server_key =
-                                        ogs_yaml_iter_key(&server_iter);
-                                    ogs_assert(server_key);
-                                    if (!strcmp(server_key, "family")) {
+                                while (ogs_yaml_iter_next(&client_iter)) {
+                                    const char *client_key =
+                                        ogs_yaml_iter_key(&client_iter);
+                                    ogs_assert(client_key);
+                                    if (!strcmp(client_key, "family")) {
                                         const char *v =
-                                            ogs_yaml_iter_value(&server_iter);
+                                            ogs_yaml_iter_value(&client_iter);
                                         if (v) family = atoi(v);
                                         if (family != AF_UNSPEC &&
                                             family != AF_INET &&
@@ -2114,9 +2112,9 @@ int mme_context_parse_config(void)
                                                     family);
                                             family = AF_UNSPEC;
                                         }
-                                    } else if (!strcmp(server_key, "address")) {
+                                    } else if (!strcmp(client_key, "address")) {
                                         ogs_yaml_iter_t hostname_iter;
-                                        ogs_yaml_iter_recurse(&server_iter,
+                                        ogs_yaml_iter_recurse(&client_iter,
                                                 &hostname_iter);
                                         ogs_assert(ogs_yaml_iter_type(
                                                     &hostname_iter) !=
@@ -2137,16 +2135,16 @@ int mme_context_parse_config(void)
                                         } while (ogs_yaml_iter_type(
                                                     &hostname_iter) ==
                                                 YAML_SEQUENCE_NODE);
-                                    } else if (!strcmp(server_key, "port")) {
+                                    } else if (!strcmp(client_key, "port")) {
                                         const char *v =
-                                            ogs_yaml_iter_value(&server_iter);
+                                            ogs_yaml_iter_value(&client_iter);
                                         if (v) {
                                             port = atoi(v);
                                             self.sls_port = port;
                                         }
-                                    } else if (!strcmp(server_key, "option")) {
+                                    } else if (!strcmp(client_key, "option")) {
                                         rv = ogs_app_parse_sockopt_config(
-                                                &server_iter, &option);
+                                                &client_iter, &option);
                                         if (rv != OGS_OK) {
                                             ogs_error("ogs_app_parse_sockopt_"
                                                     "config() failed");
@@ -2155,7 +2153,7 @@ int mme_context_parse_config(void)
                                         is_option = true;
                                     } else
                                         ogs_warn("unknown key `%s`",
-                                                server_key);
+                                                client_key);
                                 }
 
                                 addr = NULL;
@@ -2171,18 +2169,13 @@ int mme_context_parse_config(void)
                                         prefer_ipv4);
                                 if (addr == NULL) continue;
 
-                                /* Listen socknode for the E-SMLC to dial in
-                                 * (ogs_socknode_add copies addr). */
-                                ogs_socknode_add(&self.sls_list,
-                                        addr->ogs_sa_family, addr,
-                                        is_option ? &option : NULL);
-
-                                /* The esmlc context owns `addr` and holds the
-                                 * FSM + the accepted association's socket. */
+                                /* The esmlc context owns `addr` (the E-SMLC's
+                                 * SLs server address) and holds the FSM + the
+                                 * outbound association's socket. */
                                 esmlc = mme_esmlc_add(addr, NULL,
                                         is_option ? &option : NULL);
                                 ogs_assert(esmlc);
-                            } while (ogs_yaml_iter_type(&server_array) ==
+                            } while (ogs_yaml_iter_type(&client_array) ==
                                     YAML_SEQUENCE_NODE);
                         } else if (!strcmp(esmlc_key, "test_imsi")) {
                             self.sls_test_imsi =
